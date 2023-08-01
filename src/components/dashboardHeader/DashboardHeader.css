@@ -1,0 +1,10 @@
+.dashboard-header-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.dashboard-header-button {
+  height: 2.5rem;
+  cursor: pointer;
+  padding: 0 0.625rem;
+}
