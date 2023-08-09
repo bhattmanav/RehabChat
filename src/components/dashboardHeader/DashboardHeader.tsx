@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./DashboardHeader.css";
+import { useNavigate } from "react-router-dom";
 
 interface Story {
   title: string;
@@ -7,6 +8,7 @@ interface Story {
 
 export default function DashboardHeader() {
   const [stories, setStories] = useState<Story[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve stories from localStorage and parse it to a JavaScript array
@@ -25,11 +27,15 @@ export default function DashboardHeader() {
       "What should your story be named? You can change this later.",
       ""
     );
+    let id = crypto.randomUUID();
+
     if (title) {
       const newStory = {
         title: title,
+        id: id,
       };
       setStories((prevStories) => [...prevStories, newStory]);
+      localStorage.setItem(id, JSON.stringify([title]));
 
       // Retrieve existing stories from localStorage and parse it to a JavaScript array
       const storedStories = localStorage.getItem("stories");
@@ -41,6 +47,8 @@ export default function DashboardHeader() {
           JSON.stringify([...parsedStories, newStory])
         );
       }
+
+      navigate(`/edit/${id}`);
     }
   };
 
