@@ -12,6 +12,8 @@ export default function DashboardMain() {
   const [stories, setStories] = useState<Story[]>([]);
   const [clickedId, setClickedId] = useState("");
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const storedStories = localStorage.getItem("stories");
     if (storedStories) {
@@ -19,6 +21,10 @@ export default function DashboardMain() {
       setStories(parsedStories);
     }
   }, [localStorage.getItem("stories")]);
+
+  function redirectUserToDestination(id: string) {
+    navigate(`/edit/${id}`);
+  }
 
   return (
     <div className="dashboard-main-wrapper">
@@ -39,6 +45,7 @@ export default function DashboardMain() {
               active: clickedId === id,
             })}
             onClick={() => setClickedId(id)}
+            onDoubleClick={() => redirectUserToDestination(id)}
           >
             {title}
           </div>
