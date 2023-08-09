@@ -16,3 +16,7 @@
   cursor: pointer;
   background-color: lightgrey;
 }
+
+.active {
+  border: 5px solid;
+}

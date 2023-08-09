@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import classNames from "classnames";
 import "./DashboardMain.css";
 
 interface Story {
   title: string;
+  id: string;
 }
 
 export default function DashboardMain() {
   const [stories, setStories] = useState<Story[]>([]);
+  const [clickedId, setClickedId] = useState("");
 
   useEffect(() => {
     const storedStories = localStorage.getItem("stories");
@@ -19,16 +23,25 @@ export default function DashboardMain() {
   return (
     <div className="dashboard-main-wrapper">
       {stories.length === 0 ? (
-        <h1>No stories found.</h1>
+        <h1>No conversations found.</h1>
       ) : (
         <h1>
-          {stories.length} {stories.length === 1 ? "Story" : "Stories"}
+          {stories.length}{" "}
+          {stories.length === 1 ? "Conversation" : "Conversations"}
         </h1>
       )}
 
       <div className="dashboard-main-stories-wrapper">
-        {stories.map((story) => (
-          <div className="dashboard-main-story">{story.title}</div>
+        {stories.map(({ id, title }) => (
+          <div
+            key={id}
+            className={classNames("dashboard-main-story", {
+              active: clickedId === id,
+            })}
+            onClick={() => setClickedId(id)}
+          >
+            {title}
+          </div>
         ))}
       </div>
     </div>
