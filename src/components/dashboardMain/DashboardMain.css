@@ -1,0 +1,22 @@
+.dashboard-main-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-main-stories-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.dashboard-main-story {
+  width: 22.5rem;
+  height: 10.625rem;
+  cursor: pointer;
+  background-color: lightgrey;
+}
+
+.active {
+  border: 5px solid;
+}
