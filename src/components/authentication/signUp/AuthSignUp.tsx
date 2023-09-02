@@ -1,10 +1,17 @@
 import React, { useRef, useState } from "react";
-import { auth } from "../../../config/Firebase";
+import { auth, db } from "../../../config/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import "./AuthSignUp.css";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 
 export default function AuthSignUp() {
   const [error, setError] = useState("");
@@ -25,7 +32,18 @@ export default function AuthSignUp() {
     try {
       setError("");
       setLoading(true);
-      await createUserWithEmailAndPassword(auth, email, password);
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await setDoc(doc(db, "users", user.uid), {
+        email: email,
+        uid: user.uid,
+        responses: [],
+        isAdmin: false,
+        created: serverTimestamp(),
+      });
       navigate("/");
     } catch (error) {
       setError(error.message); // Display the error message
