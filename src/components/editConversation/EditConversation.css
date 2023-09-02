@@ -4,3 +4,13 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+.edit-conversation-multiple-choice-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-conversation-add-multiple-choice-wrapper {
+  display: flex;
+  flex-direction: column;
+}

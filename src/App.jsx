@@ -19,7 +19,7 @@ function App() {
       />
       <Route path="/signup" element={<AuthSignUp />} />
       <Route path="/signin" element={<AuthSignIn />} />
-      <Route path="/edit/:id" element={<EditConversation />} />
+      <Route path="/conversation/edit/:id" element={<EditConversation />} />
     </Routes>
   );
 }

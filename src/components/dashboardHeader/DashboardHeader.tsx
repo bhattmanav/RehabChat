@@ -1,62 +1,40 @@
 import React, { useEffect, useState } from "react";
 import "./DashboardHeader.css";
 import { useNavigate } from "react-router-dom";
-
-interface Story {
-  title: string;
-}
+import useFetchConversations from "../hooks/useFetchConversations";
+import { db } from "../../config/Firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 export default function DashboardHeader() {
-  const [stories, setStories] = useState<Story[]>([]);
+  const conversationsList = useFetchConversations();
+  const conversationsCollectionRef = collection(db, "conversations");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Retrieve stories from localStorage and parse it to a JavaScript array
-    const storedStories = localStorage.getItem("stories");
-    if (storedStories) {
-      const parsedStories: Story[] = JSON.parse(storedStories);
-      setStories(parsedStories);
-    } else {
-      // If "stories" key is not set in localStorage, initialize it with an empty array
-      localStorage.setItem("stories", JSON.stringify([]));
-    }
-  }, []);
-
-  const handleNewButtonClick = () => {
-    let title = prompt(
-      "What should your story be named? You can change this later.",
+  // TODO: Finish handleNewButtonClick Functionality For Firebase Database
+  async function onSubmitConversation() {
+    // const id = crypto.randomUUID();
+    const title = prompt(
+      "What should your conversation be named? You can change this later.",
       ""
     );
-    let id = crypto.randomUUID();
 
-    if (title) {
-      const newStory = {
+    try {
+      await addDoc(conversationsCollectionRef, {
+        questions: [],
         title: title,
-        id: id,
-      };
-      setStories((prevStories) => [...prevStories, newStory]);
-      localStorage.setItem(id, JSON.stringify([title]));
-
-      // Retrieve existing stories from localStorage and parse it to a JavaScript array
-      const storedStories = localStorage.getItem("stories");
-      if (storedStories) {
-        const parsedStories: Story[] = JSON.parse(storedStories);
-        // Append the new story to the existing stories and store it back in localStorage
-        localStorage.setItem(
-          "stories",
-          JSON.stringify([...parsedStories, newStory])
-        );
-      }
-
-      navigate(`/edit/${id}`);
+      });
+      // Todo: Fix up the navigation functionality so that users are taken to the respective conversation once added.
+      // navigate(`/edit/${id}`);
+    } catch (error) {
+      console.error(error);
     }
-  };
+  }
 
   const buttonOptions = [
     {
       name: "New",
       icon: undefined,
-      onClick: handleNewButtonClick,
+      onClick: onSubmitConversation,
     },
     {
       name: "Edit",

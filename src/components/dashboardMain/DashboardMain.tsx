@@ -6,30 +6,18 @@ import { Alert, Button, Card } from "react-bootstrap";
 import classNames from "classnames";
 import "./DashboardMain.css";
 import useAuthEmail from "../hooks/useAuthEmail";
-
-interface Story {
-  title: string;
-  id: string;
-}
+import useFetchConversations from "../hooks/useFetchConversations";
+import { toTitleCase } from "../../functions/Functions";
 
 export default function DashboardMain() {
   const email = useAuthEmail();
+  const conversationsList = useFetchConversations();
   const navigate = useNavigate();
-
-  const [stories, setStories] = useState<Story[]>([]);
   const [clickedId, setClickedId] = useState("");
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    const storedStories = localStorage.getItem("stories");
-    if (storedStories) {
-      const parsedStories: Story[] = JSON.parse(storedStories);
-      setStories(parsedStories);
-    }
-  }, [localStorage.getItem("stories")]);
-
   function redirectUserToDestination(id: string) {
-    navigate(`/edit/${id}`);
+    navigate(`/conversation/edit/${id}`);
   }
 
   async function handleLogout() {
@@ -39,17 +27,17 @@ export default function DashboardMain() {
 
   return (
     <div className="dashboard-main-wrapper">
-      {stories.length === 0 ? (
+      {conversationsList.length === 0 ? (
         <h1>No conversations found.</h1>
       ) : (
         <h1>
-          {stories.length}{" "}
-          {stories.length === 1 ? "Conversation" : "Conversations"}
+          {conversationsList.length}{" "}
+          {conversationsList.length === 1 ? "Conversation" : "Conversations"}
         </h1>
       )}
 
       <div className="dashboard-main-stories-wrapper">
-        {stories.map(({ id, title }) => (
+        {conversationsList.map(({ id, title }) => (
           <div
             key={id}
             className={classNames("dashboard-main-story", {
@@ -58,7 +46,7 @@ export default function DashboardMain() {
             onClick={() => setClickedId(id)}
             onDoubleClick={() => redirectUserToDestination(id)}
           >
-            {title}
+            {toTitleCase(title)}
           </div>
         ))}
       </div>
