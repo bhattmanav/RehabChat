@@ -1,29 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import "./EditConversation.css";
-import useFetchConversationById from "../hooks/useFetchConversationById";
-import { toTitleCase } from "../../functions/Functions";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import { db } from "../../../config/Firebase";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
-import { db } from "../../config/Firebase";
-
-interface QuestionObject {
-  [questionID: string]: {
-    title: string;
-    type: string;
-    serverResponse: string;
-    options?: Array<MultipleChoiceOptionObject>;
-  };
-}
-
-interface MultipleChoiceOptionObject {
-  [optionID: string]: {
-    title: string;
-    reference: string;
-  };
-}
+import useFetchConversationById from "../../hooks/useFetchConversationById";
+import { toTitleCase } from "../../../functions/Functions";
+import {
+  Question,
+  QuestionData,
+  MultipleChoiceOption,
+  Conversation,
+} from "../ConversationUtils";
+import "./EditConversation.css";
 
 function EditConversation() {
-  const defaultQuestion = {
+  const defaultQuestion: QuestionData = {
     questionID: {
       title: "",
       type: "Short Answer",
@@ -31,31 +21,37 @@ function EditConversation() {
       options: [],
     },
   };
-  const defaultMultipleChoiceObject = {
+  const defaultMultipleChoiceOption: MultipleChoiceOption = {
     optionID: {
       title: "",
       reference: "question_id_",
     },
   };
-
   const { id } = useParams<{ id?: string }>();
-  const conversation = useFetchConversationById(id as string);
-  const conversationTitle = toTitleCase(conversation?.title);
-  const questionDocRef = doc(db, "conversations", id as string);
-  const [question, setQuestion] = useState<QuestionObject>(defaultQuestion);
+  const conversation: Conversation | null = useFetchConversationById(
+    id as string
+  );
+  const conversationTitle: string = toTitleCase(
+    conversation?.title || "no conversation found"
+  );
+  const [question, setQuestion] = useState<QuestionData>(defaultQuestion);
   const [multipleChoiceObject, setMultipleChoiceObject] =
-    useState<MultipleChoiceOptionObject>(defaultMultipleChoiceObject);
+    useState<MultipleChoiceOption>(defaultMultipleChoiceOption);
   const [multipleChoiceArrayObject, setMultipleChoiceArrayObject] = useState<
-    Array<MultipleChoiceOptionObject>
+    Array<MultipleChoiceOption>
   >([]);
+  const questionDocRef = doc(db, "conversations", id as string);
 
-  async function onSubmitQuestion(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmitQuestion(
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> {
     e.preventDefault();
-    const questionId = Number(conversation?.questions.length) || 0;
-    const questionObject = question.questionID;
+
+    const questionId: number = Number(conversation?.questions?.length) || 0;
+    const questionObject: Question = question.questionID;
 
     if (questionObject) {
-      const newQuestionObject = { ...question };
+      const newQuestionObject = { ...question } as QuestionData;
       delete newQuestionObject.questionID;
       newQuestionObject[`question_id_${questionId + 1}`] = {
         ...questionObject,
@@ -77,9 +73,10 @@ function EditConversation() {
 
   function onSubmitMultipleChoice(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
+  ): void {
     e.preventDefault();
-    const optionId = Number(multipleChoiceArrayObject?.length) || 0;
+
+    const optionId: number = Number(multipleChoiceArrayObject?.length) || 0;
     const optionObject = multipleChoiceObject.optionID;
 
     if (optionObject) {
@@ -93,7 +90,7 @@ function EditConversation() {
       ]);
     }
 
-    setMultipleChoiceObject(defaultMultipleChoiceObject);
+    setMultipleChoiceObject(defaultMultipleChoiceOption);
   }
 
   return (

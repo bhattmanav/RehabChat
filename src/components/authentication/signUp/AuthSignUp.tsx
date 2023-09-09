@@ -1,32 +1,26 @@
 import React, { useRef, useState } from "react";
 import { auth, db } from "../../../config/Firebase";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import "./AuthSignUp.css";
-import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
 
 export default function AuthSignUp() {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const passwordConfirmRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
-  async function signUp(email: string, password: string) {
-    if (passwordRef.current && passwordConfirmRef.current) {
-      if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-        return setError("Passwords do not match");
-      }
+  async function signUp(email: string, password: string): Promise<void> {
+    if (
+      passwordRef.current &&
+      passwordConfirmRef.current &&
+      passwordRef.current.value !== passwordConfirmRef.current.value
+    ) {
+      return setError("Passwords do not match");
     }
 
     try {
@@ -46,15 +40,21 @@ export default function AuthSignUp() {
       });
       navigate("/");
     } catch (error) {
-      setError(error.message); // Display the error message
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+
     if (emailRef.current && passwordRef.current) {
-      await signUp(emailRef.current.value, passwordRef.current.value);
+      try {
+        await signUp(emailRef.current.value, passwordRef.current.value);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 

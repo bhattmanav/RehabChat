@@ -1,10 +1,11 @@
 import { Route, Routes } from "react-router-dom";
-import "./App.css";
+import PrivateRoute from "./components/route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 import AuthSignUp from "./components/authentication/signUp/AuthSignUp";
 import AuthSignIn from "./components/authentication/signIn/AuthSignIn";
-import EditConversation from "./components/editConversation/EditConversation";
-import PrivateRoute from "./components/route/PrivateRoute";
+import EditConversation from "./components/conversation/editConversation/EditConversation";
+import ViewConversation from "./components/conversation/viewConversation/ViewConversation";
+import "./App.css";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path="/signup" element={<AuthSignUp />} />
       <Route path="/signin" element={<AuthSignIn />} />
       <Route path="/conversation/edit/:id" element={<EditConversation />} />
+      <Route path="/conversation/view/:id" element={<ViewConversation />} />
     </Routes>
   );
 }

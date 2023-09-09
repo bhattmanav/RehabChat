@@ -1,38 +1,39 @@
 import React, { useRef, useState } from "react";
 import { auth } from "../../../config/Firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import "./AuthSignIn.css";
 
 export default function AuthSignIn() {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
-  async function signIn(email: string, password: string) {
+  async function signIn(email: string, password: string): Promise<void> {
     try {
       setError("");
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (error) {
-      setError(error.message); // Display the error message
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+
     if (emailRef.current && passwordRef.current) {
-      await signIn(emailRef.current.value, passwordRef.current.value);
+      try {
+        await signIn(emailRef.current.value, passwordRef.current.value);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 

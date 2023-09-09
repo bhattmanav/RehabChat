@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react";
 import { db } from "../../config/Firebase";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
+import { Conversation } from "../conversation/ConversationUtils";
 
-interface Conversation {
-  id: string;
-  title: string;
-  questions: { [questionId: string]: Question };
-}
-
-interface Question {
-  type: string;
-  text: string;
-}
-
-function useFetchConversationById(conversationId: string) {
+function useFetchConversationById(conversationId: string): Conversation | null {
   const conversationDocRef = doc(db, "conversations", conversationId);
   const [conversation, setConversation] = useState<Conversation | null>(null);
 

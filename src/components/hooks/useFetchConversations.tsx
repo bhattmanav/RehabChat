@@ -1,22 +1,12 @@
 import { useEffect, useState } from "react";
 import { db } from "../../config/Firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import { Conversation } from "../conversation/ConversationUtils";
 
-interface Conversation {
-  id: string;
-  title: string;
-  questions: { [questionId: string]: Question };
-}
-
-interface Question {
-  type: string;
-  text: string;
-}
-
-function useFetchConversations() {
-  const [conversationsList, setConversationsList] = useState<Conversation[]>(
-    []
-  );
+function useFetchConversations(): Array<Conversation> {
+  const [conversationsList, setConversationsList] = useState<
+    Array<Conversation>
+  >([]);
   const conversationsCollectionRef = collection(db, "conversations");
 
   useEffect(() => {

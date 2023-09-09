@@ -1,91 +1,62 @@
 import React, { useEffect, useState } from "react";
-
-import useFetchConversationById from "../hooks/useFetchConversationById";
-import ConversationBubble from "../conversationBubble/ConversationBubble";
-import { Form, Button } from "react-bootstrap";
-import { generateRandomId } from "../../functions/Functions";
-import classNames from "classnames";
-import {
-  DocumentData,
-  DocumentReference,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "../../config/Firebase";
-import "./ViewConversationChat.css";
+import { db } from "../../../config/Firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import classNames from "classnames";
+import useFetchConversationById from "../../hooks/useFetchConversationById";
+import { generateRandomId } from "../../../functions/Functions";
+import {
+  QuestionData,
+  Question,
+  MultipleChoiceOption,
+  Conversation,
+} from "../ConversationUtils";
+import { Form, Button } from "react-bootstrap";
+import ConversationBubble from "../conversationBubble/ConversationBubble";
+import "./ViewConversationChat.css";
 
 interface ViewConversationChatProps {
   id?: string;
-}
-
-interface QuestionObject {
-  [questionID: string]:
-    | {
-        title: string;
-        type: string;
-        serverResponse: string;
-        options?: Array<MultipleChoiceOptionObject>;
-      }
-    | string;
-}
-
-interface MultipleChoiceOptionObject {
-  [optionID: string]: {
-    title: string;
-    reference: string;
-  };
-}
-
-interface QuestionData {
-  options: Array<string>;
-  serverResponse: string;
-  userResponse?: string;
-  title: string;
-  type: string;
 }
 
 interface MessageObject {
   type: "question" | "response";
   text: string;
   format?: string;
-  options?: Array<MultipleChoiceOptionObject>;
+  options?: Array<MultipleChoiceOption>;
 }
 
 export default function ViewConversationChat({
   id,
 }: ViewConversationChatProps) {
+  const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(
+    null
+  );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [currentQuestion, setCurrentQuestion] = useState<QuestionObject>();
-
   const [addedQuestionIds, setAddedQuestionIds] = useState<Set<string>>(
-    new Set()
+    new Set<string>()
   );
   const [userResponse, setUserResponse] = useState<string>("");
+  const [userResponses, setUserResponses] = useState<Array<QuestionData>>([]);
   const [messageList, setMessageList] = useState<Array<MessageObject>>([]);
-  const [userResponses, setUserResponses] = useState<Array<QuestionObject>>([]);
-
-  const conversation = useFetchConversationById(id as string);
-  const conversationTitle = conversation?.title;
-  const questions = conversation?.questions || [];
+  const conversation: Conversation | null = useFetchConversationById(
+    id as string
+  );
+  const conversationTitle: string =
+    conversation?.title || "no conversation found";
+  const questions: Array<QuestionData> = conversation?.questions ?? [];
   const auth = getAuth();
   const user = auth.currentUser;
-  let userDocRef;
-
-  if (user && user.uid) {
-    userDocRef = doc(db, "users", user?.uid!);
-  }
+  const userDocRef = user?.uid && doc(db, "users", user?.uid);
 
   useEffect(() => {
-    const currentQuestion = questions[currentQuestionIndex];
-    setCurrentQuestion(currentQuestion);
+    setCurrentQuestion(questions[currentQuestionIndex]);
 
     if (currentQuestion) {
-      const questionID = Object.keys(currentQuestion)[0];
+      const questionId = Object.keys(currentQuestion)[0];
 
-      if (!addedQuestionIds.has(questionID)) {
-        const questionData = currentQuestion[questionID];
+      if (!addedQuestionIds.has(questionId)) {
+        const questionData = currentQuestion[questionId] as Question;
 
         setMessageList((prevMessages) => [
           ...prevMessages,
@@ -96,86 +67,72 @@ export default function ViewConversationChat({
             options: questionData.options,
           },
         ]);
-        setAddedQuestionIds((prevSet) => prevSet.add(questionID));
+        setAddedQuestionIds((prevSet) => prevSet.add(questionId));
       }
     }
-  }, [currentQuestionIndex, questions, addedQuestionIds]);
+  }, [currentQuestion, currentQuestionIndex, questions, addedQuestionIds]);
 
-  function addUserResponse(e: React.FormEvent) {
-    e.preventDefault();
-    if (currentQuestion) {
-      if (userResponse !== undefined) {
-        const userResponseObject = { ...currentQuestion };
-        userResponseObject.userResponse = userResponse;
-        setUserResponses((prevResponses) => {
-          // Create a new set of responses and add the userResponseObject
-          const newResponsesSet = new Set(
-            prevResponses.map((response) => JSON.stringify(response))
-          );
-          newResponsesSet.add(JSON.stringify(userResponseObject));
+  function addUserResponse(userResponse: string): void {
+    const userResponseObject = { ...currentQuestion, userResponse };
 
-          // Convert the set back to an array of objects
-          return Array.from(newResponsesSet).map((responseString) =>
-            JSON.parse(responseString)
-          );
-        });
-        setMessageList((prevMessages) => [
-          ...prevMessages,
-          { type: "response", text: userResponse },
-        ]);
-        setUserResponse("");
-        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      }
-    }
-  }
-
-  function addMultipleChoiceUserResponse(
-    selectedResponse: string,
-    reference: string
-  ) {
-    const questionNumber = parseInt(reference.split("_").pop() || "0");
-    const userResponseObject = { ...currentQuestion };
-    userResponseObject.userResponse = selectedResponse;
     setUserResponses((prevResponses) => {
-      // Create a new set of responses and add the userResponseObject
       const newResponsesSet = new Set(
         prevResponses.map((response) => JSON.stringify(response))
       );
       newResponsesSet.add(JSON.stringify(userResponseObject));
-
-      // Convert the set back to an array of objects
-      return Array.from(newResponsesSet).map((responseString) =>
-        JSON.parse(responseString)
+      return Array.from(
+        newResponsesSet,
+        (responseString) => JSON.parse(responseString) as QuestionData
       );
     });
     setMessageList((prevMessages) => [
       ...prevMessages,
-      { type: "response", text: selectedResponse },
+      { type: "response", text: userResponse },
     ]);
     setUserResponse("");
+  }
+
+  function processWrittenUserResponse(e: React.FormEvent): void {
+    e.preventDefault();
+    if (!currentQuestion && userResponse === undefined) {
+      return;
+    }
+    addUserResponse(userResponse);
+    setCurrentQuestionIndex((prevQuestionIndex) => prevQuestionIndex + 1);
+  }
+
+  function processMultipleChoiceUserResponse(
+    selectedResponse: string,
+    questionReference: string
+  ): void {
+    const questionNumber = parseInt(questionReference.split("_").pop() || "0");
+
+    if (isNaN(questionNumber) || questionNumber <= 0) {
+      console.error("Invalid question number:", questionNumber);
+      return;
+    }
+
+    addUserResponse(selectedResponse);
     setCurrentQuestionIndex(questionNumber - 1);
   }
 
-  async function submitUserResponse() {
-    // const data = {
-    //   responses: {
-    //     [conversationTitle as string]: JSON.stringify(userResponses),
-    //   },
-    // };
-
+  async function submitUserResponse(): Promise<void> {
     try {
-      // Step 1: Retrieve the existing data from the document
-      const docSnap = await getDoc(userDocRef);
-      const existingData = docSnap.data();
+      if (userDocRef) {
+        const docSnap = await getDoc(userDocRef);
+        const existingData = docSnap.data();
 
-      const newData = {
-        responses: {
-          ...existingData?.responses,
-          [conversationTitle as string]: userResponses,
-        },
-      };
+        if (existingData) {
+          const newData = {
+            responses: {
+              ...existingData?.responses,
+              [conversationTitle as string]: userResponses,
+            },
+          };
 
-      await updateDoc(userDocRef, newData);
+          await updateDoc(userDocRef, newData);
+        }
+      }
     } catch (error) {
       console.error(error);
     }
@@ -210,7 +167,10 @@ export default function ViewConversationChat({
                             role="agent"
                             message={title}
                             onClick={() =>
-                              addMultipleChoiceUserResponse(title, reference)
+                              processMultipleChoiceUserResponse(
+                                title,
+                                reference
+                              )
                             }
                           />
                         );
@@ -226,7 +186,7 @@ export default function ViewConversationChat({
             )}
           </div>
           <div className="view-conversation-chat-response">
-            <Form onSubmit={addUserResponse}>
+            <Form onSubmit={processWrittenUserResponse}>
               <Form.Group id="response">
                 <Form.Label htmlFor="instructions">
                   First or nick name. (Don't use surname)

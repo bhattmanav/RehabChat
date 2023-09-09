@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { auth } from "../../config/Firebase";
 import { User as FirebaseUser } from "firebase/auth";
 
-export default function useAuth() {
+export default function useAuth(): {
+  user: FirebaseUser | null;
+  loading: boolean;
+} {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 

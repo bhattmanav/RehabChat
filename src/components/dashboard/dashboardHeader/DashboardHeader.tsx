@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from "react";
-import "./DashboardHeader.css";
-import { useNavigate } from "react-router-dom";
-import useFetchConversations from "../hooks/useFetchConversations";
-import { db } from "../../config/Firebase";
+import React from "react";
+import { db } from "../../../config/Firebase";
 import { addDoc, collection } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import "./DashboardHeader.css";
 
-export default function DashboardHeader() {
-  const conversationsList = useFetchConversations();
+interface DashboardHeaderProps {
+  id: string;
+}
+
+export default function DashboardHeader({ id }: DashboardHeaderProps) {
   const conversationsCollectionRef = collection(db, "conversations");
   const navigate = useNavigate();
 
   // TODO: Finish handleNewButtonClick Functionality For Firebase Database
-  async function onSubmitConversation() {
+  async function onSubmitConversation(): Promise<void> {
     // const id = crypto.randomUUID();
     const title = prompt(
       "What should your conversation be named? You can change this later.",
@@ -30,11 +32,20 @@ export default function DashboardHeader() {
     }
   }
 
+  function redirectToConversation(): void {
+    navigate(`/conversation/view/${id}`);
+  }
+
   const buttonOptions = [
     {
       name: "New",
       icon: undefined,
       onClick: onSubmitConversation,
+    },
+    {
+      name: "View",
+      icon: undefined,
+      onClick: redirectToConversation,
     },
     {
       name: "Edit",

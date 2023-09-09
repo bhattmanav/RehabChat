@@ -1,13 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { auth, db } from "../../config/Firebase";
-import { Link, useNavigate } from "react-router-dom";
-
-import { Alert, Button, Card, Form } from "react-bootstrap";
-import classNames from "classnames";
-import "./DashboardMain.css";
-import useAuthEmail from "../hooks/useAuthEmail";
-import useFetchConversations from "../hooks/useFetchConversations";
-import { toTitleCase } from "../../functions/Functions";
+import React, { useState } from "react";
+import { auth, db } from "../../../config/Firebase";
 import {
   collection,
   getDocs,
@@ -15,28 +7,47 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import useGetAdminStatus from "../hooks/useGetAdminStatus";
+import useAuthEmail from "../../hooks/useAuthEmail";
+import useFetchConversations from "../../hooks/useFetchConversations";
+import useGetAdminStatus from "../../hooks/useGetAdminStatus";
+import classNames from "classnames";
+import { Conversation } from "../../conversation/ConversationUtils";
+import { toTitleCase } from "../../../functions/Functions";
+import { Link, useNavigate } from "react-router-dom";
+import { Alert, Button, Card, Form } from "react-bootstrap";
+import DashboardHeader from "../dashboardHeader/DashboardHeader";
+import "./DashboardMain.css";
 
 export default function DashboardMain() {
-  const navigate = useNavigate();
-  const email = useAuthEmail();
-  const isAdmin = useGetAdminStatus();
-  const conversationsList = useFetchConversations();
-  const usersCollectionRef = collection(db, "users");
-  const [clickedId, setClickedId] = useState("");
+  const [clickedId, setClickedId] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [emailRef, setEmailRef] = useState("");
+  const [emailRef, setEmailRef] = useState<string>("");
+  const conversationsList: Array<Conversation> = useFetchConversations();
+  const email: string = useAuthEmail();
+  const isAdmin: boolean = useGetAdminStatus();
+  const navigate = useNavigate();
+  const usersCollectionRef = collection(db, "users");
 
-  function redirectUserToDestination(id: string) {
-    navigate(`/conversation/edit/${id}`);
+  function redirectUserToDestination(id: string): void {
+    try {
+      navigate(`/conversation/edit/${id}`);
+    } catch (error) {
+      console.error(`Error redirecting user to destination: ${error}`);
+    }
   }
 
-  async function handleLogout() {
-    await auth.signOut();
-    navigate("/signin");
+  async function handleLogout(): Promise<void> {
+    try {
+      await auth.signOut();
+      navigate("/signin");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  async function makeUserAdmin(e: React.FormEvent) {
+  async function makeUserAdmin(
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> {
     e.preventDefault();
 
     try {
@@ -62,6 +73,7 @@ export default function DashboardMain() {
 
   return (
     <div className="dashboard-main-wrapper">
+      <DashboardHeader id={clickedId} />
       {conversationsList.length === 0 ? (
         <h1>No conversations found.</h1>
       ) : (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { auth, db } from "../../config/Firebase";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
-function useGetAdminStatus() {
+function useGetAdminStatus(): boolean {
   const [userIsAdmin, setUserIsAdmin] = useState(false);
 
   useEffect(() => {

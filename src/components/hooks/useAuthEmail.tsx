@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { auth } from "../../config/Firebase";
 
-function useAuth() {
-  const [email, setEmail] = useState<string | undefined>(undefined);
+function useAuthEmail(): string {
+  const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -15,4 +15,4 @@ function useAuth() {
   return email;
 }
 
-export default useAuth;
+export default useAuthEmail;
