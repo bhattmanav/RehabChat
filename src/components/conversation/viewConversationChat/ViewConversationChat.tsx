@@ -180,7 +180,11 @@ export default function ViewConversationChat({
               </React.Fragment>
             ))}
             {currentQuestionIndex === questions.length && (
-              <Button className="" type="submit" onClick={submitUserResponse}>
+              <Button
+                className="text-lg text-white rounded bg-buttonColor px-6 py-1"
+                type="submit"
+                onClick={submitUserResponse}
+              >
                 Finish
               </Button>
             )}
@@ -195,12 +199,15 @@ export default function ViewConversationChat({
                   <Form.Control
                     type="text"
                     id="input-response"
-                    className={classNames("w-100")}
+                    className="w-full px-2 py-1 border-solid border border-black"
                     value={userResponse}
                     onChange={(e) => setUserResponse(e.target.value)}
                     required
                   />
-                  <Button className="" type="submit">
+                  <Button
+                    className="text-lg text-white rounded bg-buttonColor px-6 py-1"
+                    type="submit"
+                  >
                     Send
                   </Button>
                 </div>

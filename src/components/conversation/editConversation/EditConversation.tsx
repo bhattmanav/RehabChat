@@ -94,13 +94,22 @@ function EditConversation() {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+      }}
+    >
       {conversation ? (
         <form className="edit-conversation-wrapper" onSubmit={onSubmitQuestion}>
-          <h1>{`${conversationTitle} Conversation`}</h1>
+          <h1 className="text-4xl">{`${conversationTitle} Conversation`}</h1>
           <label htmlFor="">Question</label>
           <input
             type="text"
+            className="border-solid border-2 border-black"
             required
             value={question.questionID.title}
             onChange={(e) =>
@@ -114,6 +123,7 @@ function EditConversation() {
           <select
             name=""
             id=""
+            className="border-solid border-2 border-black"
             required
             value={question.questionID.type}
             onChange={(e) =>
@@ -135,6 +145,7 @@ function EditConversation() {
                 <input
                   type="text"
                   value={multipleChoiceObject?.optionID.title}
+                  className="border-solid border-2 border-black"
                   name=""
                   id=""
                   onChange={(e) =>
@@ -151,6 +162,7 @@ function EditConversation() {
                 <input
                   type="number"
                   value={multipleChoiceObject?.optionID.reference.slice(12)} // Remove the prefix
+                  className="border-solid border-2 border-black"
                   name=""
                   id=""
                   onChange={(e) =>
@@ -163,7 +175,12 @@ function EditConversation() {
                     })
                   }
                 />
-                <button onClick={(e) => onSubmitMultipleChoice(e)}>add</button>
+                <button
+                  className="flex justify-center text-lg max-w-sm text-white rounded bg-buttonColor px-6 py-1 my-1"
+                  onClick={(e) => onSubmitMultipleChoice(e)}
+                >
+                  Add
+                </button>
               </div>
             </div>
           )}
@@ -175,6 +192,7 @@ function EditConversation() {
             value={question.questionID.serverResponse}
             cols={30}
             rows={10}
+            className="border-solid border-2 border-black"
             onChange={(e) => {
               setQuestion({
                 ...question,
@@ -185,7 +203,9 @@ function EditConversation() {
               });
             }}
           ></textarea>
-          <button>Add</button>
+          <button className="text-lg text-white rounded bg-buttonColor px-6 py-1">
+            Add
+          </button>
         </form>
       ) : (
         <div>Content could not be found</div>

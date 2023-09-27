@@ -1,5 +1,6 @@
 export interface Conversation {
   id: string;
+  createdAt: Date;
   questions: Array<QuestionData>;
   title: string;
 }
