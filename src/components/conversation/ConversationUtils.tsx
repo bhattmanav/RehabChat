@@ -9,6 +9,7 @@ export interface Question {
   title: string;
   type: string;
   serverResponse: string;
+  instruction: string;
   options?: Array<MultipleChoiceOption>;
 }
 

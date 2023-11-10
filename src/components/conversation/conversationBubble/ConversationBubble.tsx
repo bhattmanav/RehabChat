@@ -7,23 +7,35 @@ type Role = "agent" | "user";
 interface ConversationBubbleProps {
   role: Role;
   message: string;
+  format?: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 export default function ConversationBubble({
   role,
   message,
+  format,
   onClick,
 }: ConversationBubbleProps) {
   return (
-    <p
-      onClick={onClick || (() => {})}
-      className={classNames("conversation-bubble", {
-        agent: role === "agent",
-        user: role === "user",
-      })}
-    >
-      {message}
-    </p>
+    <div className="conversation-bubble-wrapper">
+      {role === "agent" && format !== "Multiple Choice" && (
+        <span className="conversation-bubble-name">Jo</span>
+      )}
+      <p
+        onClick={onClick || (() => {})}
+        className={classNames("conversation-bubble", {
+          agent: role === "agent",
+          user: role === "user",
+        })}
+      >
+        {message.split("\n").map((paragraph, index) => (
+          <React.Fragment key={index}>
+            {paragraph}
+            <br />
+          </React.Fragment>
+        ))}
+      </p>
+    </div>
   );
 }

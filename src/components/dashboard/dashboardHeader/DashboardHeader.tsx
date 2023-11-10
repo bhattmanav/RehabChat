@@ -1,6 +1,12 @@
 import React from "react";
 import { auth, db } from "../../../config/Firebase";
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
@@ -21,10 +27,14 @@ export default function DashboardHeader({ id }: DashboardHeaderProps) {
   const navigation = [
     { name: "New", href: "", current: true, onClick: onSubmitConversation },
     { name: "View", href: "", current: false, onClick: redirectToConversation },
-    { name: "Edit", href: "", current: false, onClick: () => {} },
-    { name: "Tag", href: "", current: false, onClick: () => {} },
-    { name: "Rename", href: "", current: false, onClick: () => {} },
-    { name: "Delete", href: "", current: false, onClick: () => {} },
+    {
+      name: "Edit",
+      href: "",
+      current: false,
+      onClick: redirectToEditConversation,
+    },
+    { name: "Rename", href: "", current: false, onClick: renameConversation },
+    { name: "Delete", href: "", current: false, onClick: deleteConversation },
   ];
   const userNavigation = [
     { name: "Your Profile", onClick: () => {} },
@@ -71,6 +81,38 @@ export default function DashboardHeader({ id }: DashboardHeaderProps) {
 
   function redirectToConversation(): void {
     navigate(`/conversation/view/${id}`);
+  }
+
+  function redirectToEditConversation(): void {
+    navigate(`/conversation/edit/${id}`);
+  }
+
+  function renameConversation(e) {
+    e.preventDefault();
+    const title = prompt(
+      "What should the conversation be renamed to? You can change this later.",
+      ""
+    );
+    const docRef = doc(db, "conversations", id);
+
+    try {
+      updateDoc(docRef, {
+        title: title,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function deleteConversation(e) {
+    e.preventDefault();
+
+    const docRef = doc(db, "conversations", id);
+    try {
+      deleteDoc(docRef);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // Todo: Remove once tailwind navbar has been installed

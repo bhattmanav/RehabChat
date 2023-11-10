@@ -19,6 +19,7 @@ function EditConversation() {
       type: "Short Answer",
       serverResponse: "",
       options: [],
+      instruction: "",
     },
   };
   const defaultMultipleChoiceOption: MultipleChoiceOption = {
@@ -184,7 +185,7 @@ function EditConversation() {
               </div>
             </div>
           )}
-          <label htmlFor="">Sever Response</label>
+          <label htmlFor="">Server Response</label>
           <textarea
             name=""
             id=""
@@ -199,6 +200,25 @@ function EditConversation() {
                 questionID: {
                   ...question.questionID,
                   serverResponse: e.target.value,
+                },
+              });
+            }}
+          ></textarea>
+          <label htmlFor="">Instructions</label>
+          <textarea
+            name=""
+            id=""
+            required
+            value={question.questionID.instruction}
+            cols={30}
+            rows={4}
+            className="border-solid border-2 border-black"
+            onChange={(e) => {
+              setQuestion({
+                ...question,
+                questionID: {
+                  ...question.questionID,
+                  instruction: e.target.value,
                 },
               });
             }}

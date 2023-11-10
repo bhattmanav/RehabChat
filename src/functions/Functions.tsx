@@ -1,3 +1,9 @@
+declare global {
+  interface Crypto {
+    randomUUID: () => string;
+  }
+}
+
 export function toTitleCase(inputString: string): string {
   if (!inputString) {
     return "";
@@ -13,4 +19,9 @@ export function toTitleCase(inputString: string): string {
 
 export function generateRandomId(): string {
   return crypto.randomUUID();
+}
+
+export function playTextToSpeech(text: string) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
 }

@@ -4,7 +4,10 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import classNames from "classnames";
 import useFetchConversationById from "../../hooks/useFetchConversationById";
-import { generateRandomId } from "../../../functions/Functions";
+import {
+  generateRandomId,
+  playTextToSpeech,
+} from "../../../functions/Functions";
 import {
   QuestionData,
   Question,
@@ -13,6 +16,8 @@ import {
 } from "../ConversationUtils";
 import { Form, Button } from "react-bootstrap";
 import ConversationBubble from "../conversationBubble/ConversationBubble";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faVolumeHigh, faVolumeXmark } from "@fortawesome/free-solid-svg-icons";
 import "./ViewConversationChat.css";
 
 interface ViewConversationChatProps {
@@ -20,7 +25,7 @@ interface ViewConversationChatProps {
 }
 
 interface MessageObject {
-  type: "question" | "response";
+  type: "question" | "response" | "server";
   text: string;
   format?: string;
   options?: Array<MultipleChoiceOption>;
@@ -38,7 +43,9 @@ export default function ViewConversationChat({
   );
   const [userResponse, setUserResponse] = useState<string>("");
   const [userResponses, setUserResponses] = useState<Array<QuestionData>>([]);
+  const [questionData, setQuestionData] = useState<Question>();
   const [messageList, setMessageList] = useState<Array<MessageObject>>([]);
+  const [textToSpeech, setTextToSpeech] = useState<boolean>(false);
   const conversation: Conversation | null = useFetchConversationById(
     id as string
   );
@@ -57,6 +64,7 @@ export default function ViewConversationChat({
 
       if (!addedQuestionIds.has(questionId)) {
         const questionData = currentQuestion[questionId] as Question;
+        setQuestionData(questionData);
 
         setMessageList((prevMessages) => [
           ...prevMessages,
@@ -67,6 +75,11 @@ export default function ViewConversationChat({
             options: questionData.options,
           },
         ]);
+
+        if (textToSpeech) {
+          playTextToSpeech(questionData.title);
+        }
+
         setAddedQuestionIds((prevSet) => prevSet.add(questionId));
       }
     }
@@ -88,6 +101,7 @@ export default function ViewConversationChat({
     setMessageList((prevMessages) => [
       ...prevMessages,
       { type: "response", text: userResponse },
+      { type: "server", text: questionData.serverResponse },
     ]);
     setUserResponse("");
   }
@@ -140,16 +154,32 @@ export default function ViewConversationChat({
 
   return (
     <div className="view-conversation-chat-wrapper">
-      <div className="view-conversation-chat-header">{`RehabChat - ${conversationTitle}`}</div>
+      <div className="view-conversation-chat-header">{`RehabChat - [${conversationTitle}]`}</div>
       <div className="view-conversation-chat-inner-wrapper">
-        <div className="view-conversation-chat-character"></div>
+        <div className="view-conversation-chat-character">
+          <FontAwesomeIcon
+            className="view-conversation-chat-text-to-speech fa-fw"
+            onClick={() => setTextToSpeech((prev) => !prev)}
+            icon={textToSpeech ? faVolumeHigh : faVolumeXmark}
+          />
+        </div>
         <div className="view-conversation-chat-right-wrapper">
           <div className="view-conversation-chat">
+            <ConversationBubble
+              key={1}
+              role="agent"
+              message={`This is the RehabChat ${conversationTitle} Module.\n\nAnswer the questions below when you are ready to start.`}
+            />
+
             {messageList.map((message, index) => (
               <React.Fragment key={generateRandomId()}>
                 <ConversationBubble
                   key={index}
-                  role={message.type === "question" ? "agent" : "user"}
+                  role={
+                    message.type === "question" || message.type === "server"
+                      ? "agent"
+                      : "user"
+                  }
                   message={message.text}
                 />
                 {message.type === "question" &&
@@ -158,13 +188,17 @@ export default function ViewConversationChat({
                   message.options && (
                     <div style={{ display: "flex", gap: "2rem" }}>
                       {message.options.map((obj, index) => {
+                        console.log(message.format);
+
                         const option = Object.values(obj)[0];
                         const title = option.title;
                         const reference = option.reference;
+
                         return (
                           <ConversationBubble
                             key={generateRandomId()}
                             role="agent"
+                            format={message.format}
                             message={title}
                             onClick={() =>
                               processMultipleChoiceUserResponse(
@@ -193,9 +227,15 @@ export default function ViewConversationChat({
             <Form onSubmit={processWrittenUserResponse}>
               <Form.Group id="response">
                 <Form.Label htmlFor="instructions">
-                  First or nick name. (Don't use surname)
+                  {questionData?.instruction}
                 </Form.Label>
-                <div style={{ display: "flex", gap: "1rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    gap: "1rem",
+                  }}
+                >
                   <Form.Control
                     type="text"
                     id="input-response"
