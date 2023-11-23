@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { db } from "../../../config/Firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import classNames from "classnames";
 import useFetchConversationById from "../../hooks/useFetchConversationById";
 import {
   generateRandomId,

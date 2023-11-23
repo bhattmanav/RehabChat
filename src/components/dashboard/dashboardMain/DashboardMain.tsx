@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { auth, db } from "../../../config/Firebase";
+import { db } from "../../../config/Firebase";
 import {
   collection,
   getDocs,
@@ -10,14 +10,12 @@ import {
 import useAuthEmail from "../../hooks/useAuthEmail";
 import useFetchConversations from "../../hooks/useFetchConversations";
 import useGetAdminStatus from "../../hooks/useGetAdminStatus";
-import classNames from "classnames";
 import { Conversation } from "../../conversation/ConversationUtils";
 import { toTitleCase } from "../../../functions/Functions";
-import { Link, useNavigate } from "react-router-dom";
-import { Alert, Button, Card, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "../dashboardHeader/DashboardHeader";
-import "./DashboardMain.css";
 import ConversationCard from "../../conversation/conversationCard/ConversationCard";
+import "./DashboardMain.css";
 
 export default function DashboardMain() {
   const [clickedId, setClickedId] = useState<string>("");
@@ -31,7 +29,6 @@ export default function DashboardMain() {
 
   const handleCardClick = (id: string) => {
     setClickedId(id);
-    console.log("Clicked Id:", id);
   };
 
   async function makeUserAdmin(
@@ -61,73 +58,6 @@ export default function DashboardMain() {
   }
 
   return (
-    // Todo: Remove when Tailwind Dashboard has been properly installed
-    // <div className="dashboard-main-wrapper">
-    //   <DashboardHeader id={clickedId} />
-    //   {conversationsList.length === 0 ? (
-    //     <h1>No conversations found.</h1>
-    //   ) : (
-    //     <h1 className="text-3xl">
-    //       {conversationsList.length}{" "}
-    //       {conversationsList.length === 1 ? "Conversation" : "Conversations"}
-    //     </h1>
-    //   )}
-
-    //   <div className="dashboard-main-stories-wrapper">
-    //     {conversationsList.map(({ id, title }) => (
-    //       <div
-    //         key={id}
-    //         className={classNames("dashboard-main-story", {
-    //           active: clickedId === id,
-    //         })}
-    //         onClick={() => setClickedId(id)}
-    //         onDoubleClick={() => redirectUserToDestination(id)}
-    //       >
-    //         {toTitleCase(title)}
-    //       </div>
-    //     ))}
-    //   </div>
-
-    //   <Card>
-    //     <Card.Body>
-    //       <h2 className="text-center mb-4">Profile</h2>
-    //       {error && <Alert variant="danger">{error}</Alert>}
-    //       <strong>Email:</strong> {email === null ? "Loading" : email}
-    //       <Link to="/update-profile" className="btn btn-primary w-100 mt-3">
-    //         Update Profile
-    //       </Link>
-    //     </Card.Body>
-    //   </Card>
-    //   <div className="w-100 text-center mt-2">
-    //     <Button variant="link" onClick={handleLogout}>
-    //       Log Out
-    //     </Button>
-    //   </div>
-
-    //   {isAdmin && (
-    //     <Card>
-    //       <Card.Body>
-    //         <h2 className="text-center mb-4">Grant Admin Access</h2>
-    //         <Form onSubmit={makeUserAdmin}>
-    //           <Form.Group id="email" className="mb-4">
-    //             <Form.Label htmlFor="email">Email</Form.Label>
-    //             <Form.Control
-    //               type="email"
-    //               id="email"
-    //               value={emailRef}
-    //               onChange={(e) => setEmailRef(e.target.value)}
-    //               required
-    //             />
-    //           </Form.Group>
-    //           <Button className="w-100 mt-3" type="submit">
-    //             Make Admin
-    //           </Button>
-    //         </Form>
-    //       </Card.Body>
-    //     </Card>
-    //   )}
-    // </div>
-
     <div className="min-h-full">
       <DashboardHeader id={clickedId} />
       <header className="bg-white shadow">

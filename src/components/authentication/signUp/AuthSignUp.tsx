@@ -3,7 +3,6 @@ import { auth, db } from "../../../config/Firebase";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import "./AuthSignUp.css";
 
 export default function AuthSignUp() {
@@ -59,61 +58,8 @@ export default function AuthSignUp() {
   }
 
   return (
-    // <Container
-    //   className="d-flex align-items-center justify-content-center"
-    //   style={{ minHeight: "100vh" }}
-    // >
-    //   <div className="w-100" style={{ maxWidth: "600px" }}>
-    //     <Card>
-    //       <Card.Body>
-    //         <h2 className="text-center mb-4">Sign Up</h2>
-    //         {error && <Alert variant="danger">{error}</Alert>}
-    //         <Form onSubmit={handleSubmit}>
-    //           <Form.Group id="email" className="mb-4">
-    //             <Form.Label htmlFor="email">Email</Form.Label>
-    //             <Form.Control type="email" id="email" ref={emailRef} required />
-    //           </Form.Group>
-
-    //           <Form.Group id="password" className="mb-4">
-    //             <Form.Label htmlFor="password">Password</Form.Label>
-    //             <Form.Control
-    //               type="password"
-    //               id="password"
-    //               ref={passwordRef}
-    //               required
-    //             />
-    //           </Form.Group>
-
-    //           <Form.Group id="password-confirm" className="mb-4">
-    //             <Form.Label htmlFor="password-confirm">
-    //               Password Confirmation
-    //             </Form.Label>
-    //             <Form.Control
-    //               type="password"
-    //               id="password-confirm"
-    //               ref={passwordConfirmRef}
-    //               required
-    //             />
-    //           </Form.Group>
-    //           <Button disabled={loading} className="w-100 mt-4" type="submit">
-    //             {loading ? "Signing Up..." : "Sign Up"}
-    //           </Button>
-    //         </Form>
-    //       </Card.Body>
-    //     </Card>
-    //     <div className="w-100 text-center mt-2">
-    //       Already have an account? <Link to="/signin">Sign In</Link>
-    //     </div>
-    //   </div>
-    // </Container>
-
     <div className="flex min-h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        {/* <img
-          className="mx-auto h-10 w-auto"
-          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-          alt="Your Company"
-        /> */}
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign up to a new account
         </h2>

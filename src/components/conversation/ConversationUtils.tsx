@@ -15,7 +15,6 @@ export interface Question {
 
 export interface QuestionData {
   [questionID: string]: Question;
-  // Todo: look into if string is needed [questionID: string]: Question | string;
 }
 
 export interface MultipleChoiceOption {
